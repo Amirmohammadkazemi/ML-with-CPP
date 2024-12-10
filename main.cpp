@@ -2,6 +2,8 @@
 #include "csv.h"
 #include <fstream>
 #include <regex>
+#include "shark/Data/Csv.h"
+#include "shark/Data/Dataset.h"
 
 template <std::size_t... Idx, typename T, typename R>
 bool read_row_help(std::index_sequence<Idx...>, T& row, R& r)
@@ -57,6 +59,8 @@ int main()
     std::ofstream out_stream("iris_fix.csv");
     out_stream << data_string;
 
-	
+    shark::ClassificationDataset dataset;
+
+
     return 0;
 }
