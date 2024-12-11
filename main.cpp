@@ -63,12 +63,12 @@ int main()
     out_stream << data_string;
 
     ClassificationDataset dataset;
-    std::size_t classes = numberOfClasses(dataset);
+    importCSV(dataset, "iris_fix.csv", LAST_COLUMN);
 
+    std::size_t classes = numberOfClasses(dataset);
     std::cout << "Number of classes " << classes << std::endl;
     std::vector<std::size_t> sizes = classSizes(dataset);
-    std::cout << "Class size: " << std::endl;
-
+    std::cout << "Class size: " << syd::endl;
     for (auto cs : sizes) {
         std::cout << cs << std::endl;
     }
@@ -76,6 +76,6 @@ int main()
     std::size_t dim = inputDimension(dataset);
     std::cout << "Input dimension " << dim << std::endl;
 
-
+  
     return 0;
 }
