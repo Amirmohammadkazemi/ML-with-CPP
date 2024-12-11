@@ -2,6 +2,11 @@
 #include "csv.h"
 #include <fstream>
 #include <regex>
+#include <shark/Data/Csv.h>
+#include <shark/Algorithms/Trainers/LDA.h>
+#include <shark/ObjectiveFunctions/Loss/ZeroOneLoss.h>
+
+using namespace shark;
 
 template <std::size_t... Idx, typename T, typename R>
 bool read_row_help(std::index_sequence<Idx...>, T& row, R& r)
@@ -56,6 +61,21 @@ int main()
 
     std::ofstream out_stream("iris_fix.csv");
     out_stream << data_string;
+
+    ClassificationDataset dataset;
+    std::size_t classes = numberOfClasses(dataset);
+
+    std::cout << "Number of classes " << classes << std::endl;
+    std::vector<std::size_t> sizes = classSizes(dataset);
+    std::cout << "Class size: " << std::endl;
+
+    for (auto cs : sizes) {
+        std::cout << cs << std::endl;
+    }
+
+    std::size_t dim = inputDimension(dataset);
+    std::cout << "Input dimension " << dim << std::endl;
+
 
     return 0;
 }
