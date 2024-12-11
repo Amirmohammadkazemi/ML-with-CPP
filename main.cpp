@@ -2,11 +2,7 @@
 #include "csv.h"
 #include <fstream>
 #include <regex>
-#include <shark/Data/Csv.h>
-#include <shark/Algorithms/Trainers/LDA.h>
-#include <shark/ObjectiveFunctions/Loss/ZeroOneLoss.h>
-
-using namespace shark;
+#include <dlib/matrix.h>
 
 template <std::size_t... Idx, typename T, typename R>
 bool read_row_help(std::index_sequence<Idx...>, T& row, R& r)
@@ -51,31 +47,10 @@ int main()
  std::cerr << err.what() << std::endl;
 }
 
-    //preprocessing CSV files
-    std::ifstream data_stream("./iris/iris.data");
-    std::string data_string((std::istreambuf_iterator<char>(data_stream)),std::istreambuf_iterator<char>());
+    dlib::matrix<double> data;
+    std::ifstream file("./iris_fix.csv");
+    file >> data;
+    std::cout << data << std::endl;
 
-    data_string = std::regex_replace(data_string, std::regex("Iris-setosa"), "1");
-    data_string = std::regex_replace(data_string, std::regex("Iris-versicolor"), "2");
-    data_string = std::regex_replace(data_string, std::regex("Iris-virginica"), "3");
-
-    std::ofstream out_stream("iris_fix.csv");
-    out_stream << data_string;
-
-    ClassificationDataset dataset;
-    importCSV(dataset, "iris_fix.csv", LAST_COLUMN);
-
-    std::size_t classes = numberOfClasses(dataset);
-    std::cout << "Number of classes " << classes << std::endl;
-    std::vector<std::size_t> sizes = classSizes(dataset);
-    std::cout << "Class size: " << syd::endl;
-    for (auto cs : sizes) {
-        std::cout << cs << std::endl;
-    }
-
-    std::size_t dim = inputDimension(dataset);
-    std::cout << "Input dimension " << dim << std::endl;
-
-  
-    return 0;
+   return 0;
 }
