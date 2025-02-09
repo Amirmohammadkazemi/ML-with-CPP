@@ -1,56 +1,56 @@
 #include <iostream>
-#include "csv.h"
 #include <fstream>
-#include <regex>
-#include <dlib/matrix.h>
+#include <sstream>
+#include "rapidjson/document.h"
 
-template <std::size_t... Idx, typename T, typename R>
-bool read_row_help(std::index_sequence<Idx...>, T& row, R& r)
-{
-    return r.read_row(std::get<Idx>(row)...);
-}
+using namespace std;
+using namespace rapidjson;
 
-//transforming a row tuple object to our value vectors
-template <std::size_t... Idx, typename T>
-void fill_values(std::index_sequence<Idx...>, T& row, std::vector<double>& data)
-{
-    data.insert(data.end(), {std::get<Idx>(row)...});
-}
+int main() {
+    // JSON file name
+    const char* filename = "reviews.json";
 
-int main()
-{
-    const uint32_t columns_num = 5;
-    io::CSVReader<columns_num> csv_reader("./iris/iris.data");
+    // Read the entire JSON file into a string
+    ifstream file(filename);
+    if (!file.is_open()) {
+        cerr << "Error opening file!" << endl;
+        return 1;
+    }
+    stringstream buffer;
+    buffer << file.rdbuf();
+    file.close();
 
-    //storing the values we read
-    std::vector<std::string> categorical_column;
-    std::vector<double> values;
+    // Parse JSON with RapidJSON
+    string jsonStr = buffer.str();
+    Document doc;
+    if (doc.Parse(jsonStr.c_str()).HasParseError()) {
+        cerr << "Error parsing JSON!" << endl;
+        return 1;
+    }
 
-    //describe values for a row
-    using RowType = std::tuple<double, double, double, double, std::string>;
-    RowType row;
+    // Check if "paper" exists and is an array
+    if (!doc.HasMember("paper") || !doc["paper"].IsArray()) {
+        cerr << "Invalid JSON format!" << endl;
+        return 1;
+    }
 
-    try {
-    bool done = false;
-    while (!done) {
-        done = !read_row_help(
-        std::make_index_sequence<std::tuple_size<RowType>::value>{}, row,
-            csv_reader);
-        if (!done) {
-            categorical_column.push_back(std::get<4>(row));
-            fill_values(std::make_index_sequence<columns_num - 1>{}, row, values);
+    // Iterate through papers
+    for (const auto& paper : doc["paper"].GetArray()) {
+        cout << "-----------------------------------\n";
+        cout << "Paper ID: " << paper["id"].GetInt() << endl;
+        cout << "Preliminary Decision: " << paper["preliminary_decision"].GetString() << endl;
+
+        // Check if "review" exists
+        if (paper.HasMember("review") && paper["review"].IsArray()) {
+            cout << "Reviews:\n";
+            for (const auto& review : paper["review"].GetArray()) {
+                cout << "  Review ID: " << review["id"].GetInt() << endl;
+                cout << "  Evaluation: " << review["evaluation"].GetString() << endl;
+                cout << "  Review Text: " << review["text"].GetString() << endl;
+                cout << "  -----------------------------------\n";
+            }
         }
     }
- } catch (const io::error::no_digit& err) {
 
- // ignore badly formatted samples
- std::cerr << err.what() << std::endl;
-}
-
-    dlib::matrix<double> data;
-    std::ifstream file("./iris_fix.csv");
-    file >> data;
-    std::cout << data << std::endl;
-
-   return 0;
+    return 0;
 }

@@ -31,3 +31,5 @@
 *.out
 *.app
 ./tests
+
+.vscode/* #Just for vscode users. I'm using vim.
